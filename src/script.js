@@ -1,71 +1,39 @@
-const team = 'Lil Shinovi';
-const names = [
-  'Agustin Demousselle',
-  'Adam Brown',
-  'Angelos Sfakianakis',
-  'Colin Bell',
-  'Gabor Szalkai',
-  'Xiaoming Wang',
-  'Charles Gunn-Russell'
-];
-
-const shuffle = () => (
-  names.map( (_, i, arrCopy) => {
+const shuffle = (toBeShuffled) => {
+  return toBeShuffled.map( (_, i, arrCopy) => {
     const rand = i + ( Math.floor( Math.random() * (arrCopy.length - i) ) );
     [arrCopy[rand], arrCopy[i]] = [arrCopy[i], arrCopy[rand]];
     return arrCopy[i];
-  })
-);
-
-const formatDate = () => {
-  const today = new Date();
-  const days = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-  ];
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-
-  const day = days[today.getDay()];
-  const month = months[today.getMonth()];
-  return `${day} ${today.getDate()}, ${month}`;
+  });
 };
 
-const date = document.getElementById('date');
-const list = document.getElementById('list');
-const button = document.getElementById('reshuffle');
-const teamName = document.getElementById('team-name');
+const formatDate = (date) => {
+  const locale = window.navigator.language;
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  return new Intl.DateTimeFormat(locale, options).format(date);
+};
 
-function writeList () {
-  const shuffled = shuffle();
-  for (const dev of shuffled) {
+const writeList = (items) => {
+  const list = document.getElementById('list');
+  for (const i of items) {
     const li = document.createElement('li');
-    li.textContent = dev;
+    li.textContent = i;
     list.appendChild(li);
   }
-}
-button.addEventListener('click', () => {
+};
+
+const buttonElement = document.getElementById('reshuffle');
+buttonElement.addEventListener('click', () => {
   list.innerHTML = "";
-  writeList();
+  location.reload();
 });
 
-date.textContent = formatDate();
-teamName.textContent = team;
-writeList();
+const urlParams = new URLSearchParams(window.location.search);
+const dateElement = document.getElementById('date');
+dateElement.textContent = formatDate(new Date());
+
+const teamNameElement = document.getElementById('team-name');
+const team = urlParams.get('teamName') || "My Team";
+teamNameElement.textContent = team;
+
+const members = (urlParams.get('members') || "Nobody Defined").split(',');
+writeList(shuffle(members));
